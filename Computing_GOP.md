@@ -107,9 +107,7 @@ Create a .sh file called *gen_lookup_table.sh* in the local directory by penning
 if [ -f path.sh ]; then . ./path.sh; fi
 . parse_options.sh || exit 1;
 
-file_path= 'exp/mono_nnet3'
-
-show-transitions exp/mono_nnet3/phones.txt exp/mono_nnet3/final.mdl > \ 
+show-transitions exp/nnet2/phones.txt exp/nnet2/final.mdl > \ 
 exp/compute_gop/show_transitions.txt
 
 #the binary show-transitions will be available in kaldi/src/bin/
