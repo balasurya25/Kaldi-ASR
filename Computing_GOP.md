@@ -45,7 +45,10 @@ To extract the frame level posterior probabilities of the learner's uttered spee
 	./parse_options.sh || exit 1;
 
 	mkdir -p exp/compute_gop
-	nnet-am-compute --apply-log=true exp/nnet2_ali/final.mdl \
+ 	#change num-ceps in conf/mfcc.conf from 13 to 40. After execution, change it back to 13 
+ 	compute-mfcc-feats --config=conf/mfcc.conf scp:data/train/wav.scp ark:- | copy-feats --compress=true ark:- ark,scp:mfcc_feats.ark,mfcc_feats.scp
+
+ 	nnet-am-compute --apply-log=false exp/nnet2_ali/final.mdl \
 	scp:data/train/feats.scp ark,t:exp/compute_gop/posterior_infile.ark
 
 	echo "DONE"
@@ -65,11 +68,12 @@ if [ -f path.sh ]; then . ./path.sh; fi
 nj=12
 
 for((i=1; i<=$nj; i++)); do
-	show-alignments exp/mono_nnet3/phones.txt exp/nnet3_ali/final.mdl ark:exp/nnet3_ali/ali.$i > exp/nnet3_ali/show_ali_$i.txt
+	gzip -d exp/nnet2_ali/ali.$i.gz
+	show-alignments exp/nnet2/phones.txt exp/nnet2_ali/final.mdl ark:exp/nnet2_ali/ali.$i > exp/nnet2_ali/show_ali_$i.txt
 done
 
-cat exp/nnet3_ali/show_ali_*.txt > exp/nnet3_ali/alignments.txt
-awk '$0' exp/nnet3_ali/alignments.txt > exp/compute_gop/align_infile.txt
+cat exp/nnet2_ali/show_ali_*.txt > exp/nnet2_ali/alignments.txt
+awk '$0' exp/nnet2_ali/alignments.txt > exp/compute_gop/align_infile.txt
 
 mkdir -p exp/compute_gop/phones
 mkdir -p exp/compute_gop/ids
